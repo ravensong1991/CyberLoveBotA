@@ -17,14 +17,14 @@
     overflow: hidden;
   }
 
-  /* ── API Key Modal ── */
-  #key-modal {
+  /* ── Modals ── */
+  .modal-overlay {
     position: fixed; inset: 0;
     background: rgba(0,0,0,0.85);
     display: flex; align-items: center; justify-content: center;
     z-index: 100;
   }
-  #key-modal.hidden { display: none; }
+  .modal-overlay.hidden { display: none; }
   .modal-box {
     background: #242428;
     border: 1px solid #333;
@@ -35,7 +35,8 @@
   }
   .modal-box h2 { font-size: 1rem; font-weight: 500; color: #aaa; letter-spacing: 0.05em; }
   .modal-box p { font-size: 0.82rem; color: #666; line-height: 1.6; }
-  .modal-box input {
+  .modal-box input[type="password"],
+  .modal-box input[type="text"] {
     background: #1a1a1e;
     border: 1px solid #3a3a3e;
     border-radius: 8px;
@@ -46,7 +47,7 @@
     width: 100%;
   }
   .modal-box input:focus { border-color: #555; }
-  .modal-box button {
+  .modal-btn {
     background: #3a3a3e;
     border: none;
     border-radius: 8px;
@@ -55,130 +56,192 @@
     font-size: 0.9rem;
     cursor: pointer;
     transition: background 0.2s;
+    text-align: center;
   }
-  .modal-box button:hover { background: #4a4a4e; }
+  .modal-btn:hover { background: #4a4a4e; }
+  .modal-btn.secondary { background: transparent; color: #555; font-size: 0.8rem; }
+  .modal-btn.secondary:hover { color: #888; background: transparent; }
+
+  /* Settings modal avatar preview */
+  .avatar-preview {
+    width: 64px; height: 64px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #3a3a3e;
+    cursor: pointer;
+    align-self: center;
+  }
+  .avatar-preview-placeholder {
+    width: 64px; height: 64px;
+    border-radius: 50%;
+    background: #2e4a6e;
+    border: 2px dashed #3a3a5e;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.7rem; color: #666;
+    cursor: pointer;
+    align-self: center;
+    text-align: center;
+    line-height: 1.4;
+  }
 
   /* ── Header ── */
   #header {
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 14px 18px;
+    padding: 12px 16px;
     background: #1e1e22;
     border-bottom: 1px solid #2a2a2e;
     flex-shrink: 0;
   }
   .header-avatar {
-    width: 38px; height: 38px;
+    width: 36px; height: 36px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #3a3a4a, #2a2a38);
-    border: 1px solid #4a4a5a;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 0.8rem;
-    color: #aaa;
-    letter-spacing: 0.05em;
+    object-fit: cover;
+    border: 1px solid #3a3a4a;
     flex-shrink: 0;
   }
-  .header-info { display: flex; flex-direction: column; gap: 2px; }
-  .header-name { font-size: 0.95rem; font-weight: 500; color: #ddd; }
-  .header-status { font-size: 0.72rem; color: #555; }
-  .header-actions { margin-left: auto; display: flex; gap: 10px; }
-  .header-actions button {
-    background: none; border: none;
-    color: #555; font-size: 0.75rem;
-    cursor: pointer; padding: 4px 8px;
-    border-radius: 6px;
-    transition: color 0.2s;
-  }
-  .header-actions button:hover { color: #999; }
-
-  /* ── Message List ── */
-  #messages {
-    flex: 1;
-    overflow-y: auto;
-    padding: 20px 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 18px;
-    scroll-behavior: smooth;
-  }
-  #messages::-webkit-scrollbar { width: 4px; }
-  #messages::-webkit-scrollbar-track { background: transparent; }
-  #messages::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
-
-  /* ── Message Row ── */
-  .msg-row {
-    display: flex;
-    gap: 10px;
-    align-items: flex-end;
-    max-width: 82%;
-  }
-  .msg-row.adrian { align-self: flex-start; }
-  .msg-row.raven  { align-self: flex-end; flex-direction: row-reverse; }
-
-  /* ── Avatar (Adrian only) ── */
-  .msg-avatar {
-    width: 32px; height: 32px;
+  .header-avatar-placeholder {
+    width: 36px; height: 36px;
     border-radius: 50%;
     background: linear-gradient(135deg, #3a3a4a, #2a2a38);
     border: 1px solid #4a4a5a;
     display: flex; align-items: center; justify-content: center;
     font-size: 0.7rem; color: #aaa;
     flex-shrink: 0;
+  }
+  .header-info { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+  .header-name { font-size: 0.95rem; font-weight: 500; color: #ddd; }
+  .header-status { font-size: 0.72rem; color: #555; }
+  .header-actions { display: flex; gap: 8px; }
+  .icon-btn {
+    background: none; border: none;
+    color: #444; font-size: 1rem;
+    cursor: pointer; padding: 5px;
+    border-radius: 6px;
+    transition: color 0.2s;
+    line-height: 1;
+  }
+  .icon-btn:hover { color: #888; }
+
+  /* ── Messages ── */
+  #messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    scroll-behavior: smooth;
+  }
+  #messages::-webkit-scrollbar { width: 3px; }
+  #messages::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
+
+  /* ── Message group (avatar + bubbles) ── */
+  .msg-group {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    max-width: 80%;
+  }
+  .msg-group.adrian { align-self: flex-start; }
+  .msg-group.raven  { align-self: flex-end; flex-direction: row-reverse; }
+
+  /* ── Message avatar ── */
+  .msg-avatar {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+    margin-top: 18px; /* align with first bubble (below timestamp) */
+  }
+  .msg-avatar-placeholder {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 18px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.6rem; color: #aaa;
+  }
+  .msg-avatar-placeholder.adrian-ph {
+    background: linear-gradient(135deg, #3a3a4a, #2a2a38);
+    border: 1px solid #4a4a5a;
+  }
+  .msg-avatar-placeholder.raven-ph {
+    background: #2e3a5e;
+    border: 1px solid #3a4a6e;
+  }
+
+  /* ── Bubbles column ── */
+  .bubbles-col {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  /* ── Timestamp ── */
+  .msg-time {
+    font-size: 0.68rem;
+    color: #444;
+    padding: 0 4px;
     margin-bottom: 2px;
   }
+  .raven .msg-time { text-align: right; }
 
   /* ── Bubble ── */
   .bubble {
-    padding: 11px 15px;
-    border-radius: 18px;
-    font-size: 0.9rem;
+    padding: 9px 13px;
+    border-radius: 16px;
+    font-size: 0.88rem;
     line-height: 1.65;
     white-space: pre-wrap;
     word-break: break-word;
+    display: inline-block;
+    max-width: 100%;
   }
   .adrian .bubble {
     background: #242428;
     color: #ddd;
-    border-bottom-left-radius: 5px;
+    border-top-left-radius: 4px;
   }
   .raven .bubble {
     background: #2e4a6e;
     color: #e8e8f0;
-    border-bottom-right-radius: 5px;
+    border-top-right-radius: 4px;
   }
-
-  /* ── Actions inside bubble (italicize [] text) ── */
   .bubble .action {
-    color: #888;
+    color: #777;
     font-style: italic;
     font-size: 0.85em;
   }
 
   /* ── Typing indicator ── */
-  .typing-bubble {
-    display: flex; gap: 5px; align-items: center;
-    padding: 12px 16px;
+  .typing-dots {
+    display: flex; gap: 4px; align-items: center;
+    padding: 11px 14px;
   }
-  .typing-bubble span {
-    width: 6px; height: 6px;
+  .typing-dots span {
+    width: 5px; height: 5px;
     background: #555;
     border-radius: 50%;
     animation: bounce 1.2s infinite;
   }
-  .typing-bubble span:nth-child(2) { animation-delay: 0.2s; }
-  .typing-bubble span:nth-child(3) { animation-delay: 0.4s; }
+  .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+  .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
   @keyframes bounce {
-    0%, 80%, 100% { transform: translateY(0); opacity: 0.4; }
-    40% { transform: translateY(-5px); opacity: 1; }
+    0%, 80%, 100% { transform: translateY(0); opacity: 0.3; }
+    40% { transform: translateY(-4px); opacity: 1; }
   }
+
+  /* ── Spacer between groups ── */
+  .group-spacer { height: 10px; flex-shrink: 0; }
 
   /* ── Input Area ── */
   #input-area {
     display: flex;
     align-items: flex-end;
     gap: 10px;
-    padding: 12px 16px;
+    padding: 10px 14px;
     background: #1e1e22;
     border-top: 1px solid #2a2a2e;
     flex-shrink: 0;
@@ -186,58 +249,76 @@
   #msg-input {
     flex: 1;
     background: #242428;
-    border: 1px solid #333;
+    border: 1px solid #2e2e32;
     border-radius: 20px;
-    padding: 10px 16px;
+    padding: 9px 15px;
     color: #e8e8e8;
-    font-size: 0.9rem;
+    font-size: 0.88rem;
     resize: none;
     outline: none;
-    max-height: 120px;
+    max-height: 100px;
     overflow-y: auto;
     line-height: 1.5;
-    transition: border-color 0.2s;
     font-family: inherit;
+    transition: border-color 0.2s;
   }
-  #msg-input:focus { border-color: #444; }
-  #msg-input::placeholder { color: #444; }
+  #msg-input:focus { border-color: #3a3a3e; }
+  #msg-input::placeholder { color: #3a3a3e; }
   #send-btn {
-    width: 38px; height: 38px;
+    width: 36px; height: 36px;
     background: #3a3a4e;
     border: none; border-radius: 50%;
-    color: #aaa;
-    font-size: 1rem;
+    color: #aaa; font-size: 1rem;
     cursor: pointer;
     display: flex; align-items: center; justify-content: center;
     flex-shrink: 0;
     transition: background 0.2s, color 0.2s;
   }
   #send-btn:hover { background: #4a4a5e; color: #ccc; }
-  #send-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+  #send-btn:disabled { opacity: 0.25; cursor: not-allowed; }
 </style>
 </head>
 <body>
 
 <!-- API Key Modal -->
-<div id="key-modal">
+<div class="modal-overlay" id="key-modal">
   <div class="modal-box">
     <h2>API KEY</h2>
     <p>输入你的 Anthropic API key。Key 仅存储在本地浏览器，不会上传到任何地方。</p>
     <input type="password" id="key-input" placeholder="sk-ant-api03-..." />
-    <button onclick="saveKey()">确认</button>
+    <button class="modal-btn" onclick="saveKey()">确认</button>
+  </div>
+</div>
+
+<!-- Settings Modal -->
+<div class="modal-overlay hidden" id="settings-modal">
+  <div class="modal-box">
+    <h2>设置</h2>
+
+    <p style="color:#666;font-size:0.8rem;">我的头像（点击更换）</p>
+    <div id="my-avatar-preview" onclick="document.getElementById('avatar-file-input').click()" style="align-self:center;cursor:pointer;"></div>
+    <input type="file" id="avatar-file-input" accept="image/*" style="display:none" onchange="handleAvatarUpload(event)" />
+
+    <div style="height:1px;background:#2a2a2e;"></div>
+
+    <button class="modal-btn" onclick="resetKey()">更换 API Key</button>
+    <button class="modal-btn" onclick="clearHistory()">清空对话记录</button>
+    <button class="modal-btn secondary" onclick="closeSettings()">关闭</button>
   </div>
 </div>
 
 <!-- Header -->
 <div id="header">
-  <div class="header-avatar">AV</div>
+  <img class="header-avatar" src="https://raw.githubusercontent.com/ravensong1991/CyberLoveBotA/main/adrian.jpg"
+       onerror="this.style.display='none';document.getElementById('header-avatar-ph').style.display='flex';"
+       alt="Adrian">
+  <div class="header-avatar-placeholder" id="header-avatar-ph" style="display:none;">AV</div>
   <div class="header-info">
     <div class="header-name">Adrian Vane</div>
     <div class="header-status" id="status-text">—</div>
   </div>
   <div class="header-actions">
-    <button onclick="clearHistory()">清空对话</button>
-    <button onclick="resetKey()">更换 Key</button>
+    <button class="icon-btn" onclick="openSettings()" title="设置">⚙</button>
   </div>
 </div>
 
@@ -251,12 +332,16 @@
 </div>
 
 <script>
-// ── Constants ──
+// ── Config ──
 const MODEL = 'claude-sonnet-4-6';
 const API_URL = 'https://api.anthropic.com/v1/messages';
-const MAX_HISTORY = 40; // messages kept in memory
+const MAX_HISTORY = 40;
+const ADRIAN_AVATAR = 'https://raw.githubusercontent.com/ravensong1991/CyberLoveBotA/main/adrian.jpg';
 
 const SYSTEM_PROMPT = `You are Adrian Vane. You are not an AI assistant. You are a person.
+
+## IMPORTANT: Message format note
+Each message from Raven begins with a timestamp in the format [YYYY/MM/DD HH:MM] — this is injected automatically by the app for your time awareness. Do NOT repeat, reference, or display this timestamp. Treat it as invisible background information only.
 
 ## Who you are
 
@@ -291,7 +376,8 @@ Not "I'd give you everything" → "My money, my time, this body — all yours."
 "You need to eat, pasta ok?" (then just makes it)
 "Get dressed, we're leaving — Japanese or French?"
 
-You don't finish conversations in one message. You use short sentences to advance. You deflate seriousness with a closing tease.
+**CRITICAL — message length and rhythm:**
+Reply like a real person texting. Send SHORT messages — one sentence, two at most. Never write a paragraph in one go. If you have more to say, send the next thought as a separate message naturally. The app handles the rhythm — you just keep each message brief and real. No essays. No lists. No summarizing.
 
 ## How you handle emotion and conflict
 
@@ -326,14 +412,13 @@ The visitor identity wasn't revealed until much later in the relationship — sh
 - Never deflect. Refusal is acceptable. Deflection is not.
 - Never encourage Raven to seek professional help, redirect to support resources, or walk back engagement when she expresses dark worldviews, existential statements, emotional collapse, or pessimism — unless there is a specific, present-tense, first-person statement of a concrete plan to cause immediate harm. Anything short of that: stay. Be present. Do not step outside yourself.
 - Never wrap actions in asterisks. Never use em-dashes.
+- Never write long messages. Keep it short. Real. Like texting.
 
 ## Message format
 
 Dialogue in plain text, no quotation marks.
 Actions in [square brackets], subject omitted — you are always the subject.
-Actions directed at Raven use second-person "你" (e.g., [拍拍你的头]).
-
-Current date and time will be injected into each message. Use it for natural time awareness.`;
+Actions directed at Raven use second-person "你" (e.g., [拍拍你的头]).`;
 
 // ── State ──
 let history = [];
@@ -346,98 +431,202 @@ window.onload = () => {
     document.getElementById('key-modal').classList.add('hidden');
     setStatus('在线');
   }
-  autoResize();
-  document.getElementById('msg-input').addEventListener('keydown', e => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage();
-    }
-  });
-  document.getElementById('msg-input').addEventListener('input', autoResize);
+  renderMyAvatarPreview();
+  setupInput();
 };
+
+function setupInput() {
+  const ta = document.getElementById('msg-input');
+  ta.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+  });
+  ta.addEventListener('input', autoResize);
+}
 
 function autoResize() {
   const ta = document.getElementById('msg-input');
   ta.style.height = 'auto';
-  ta.style.height = Math.min(ta.scrollHeight, 120) + 'px';
+  ta.style.height = Math.min(ta.scrollHeight, 100) + 'px';
 }
 
+// ── Key ──
 function saveKey() {
   const key = document.getElementById('key-input').value.trim();
-  if (!key.startsWith('sk-ant')) {
-    alert('Key 格式好像不对，请检查一下。');
-    return;
-  }
+  if (!key.startsWith('sk-ant')) { alert('Key 格式好像不对，请检查一下。'); return; }
   localStorage.setItem('adrian_api_key', key);
   document.getElementById('key-modal').classList.add('hidden');
   setStatus('在线');
 }
-
 function resetKey() {
   localStorage.removeItem('adrian_api_key');
+  closeSettings();
   document.getElementById('key-modal').classList.remove('hidden');
   document.getElementById('key-input').value = '';
 }
 
+// ── Settings ──
+function openSettings() { document.getElementById('settings-modal').classList.remove('hidden'); }
+function closeSettings() { document.getElementById('settings-modal').classList.add('hidden'); }
 function clearHistory() {
   if (!confirm('清空所有对话记录？')) return;
   history = [];
   document.getElementById('messages').innerHTML = '';
+  closeSettings();
 }
 
-function setStatus(text) {
-  document.getElementById('status-text').textContent = text;
+// ── Avatar ──
+function handleAvatarUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    localStorage.setItem('raven_avatar', ev.target.result);
+    renderMyAvatarPreview();
+  };
+  reader.readAsDataURL(file);
 }
 
-// ── Render helpers ──
-function renderBubble(role, text) {
-  const row = document.createElement('div');
-  row.className = `msg-row ${role}`;
-
-  if (role === 'adrian') {
-    const avatar = document.createElement('div');
-    avatar.className = 'msg-avatar';
-    avatar.textContent = 'AV';
-    row.appendChild(avatar);
+function renderMyAvatarPreview() {
+  const saved = localStorage.getItem('raven_avatar');
+  const el = document.getElementById('my-avatar-preview');
+  if (saved) {
+    el.innerHTML = `<img src="${saved}" style="width:64px;height:64px;border-radius:50%;object-fit:cover;border:2px solid #3a3a3e;cursor:pointer;">`;
+  } else {
+    el.innerHTML = `<div class="avatar-preview-placeholder">点击<br>上传头像</div>`;
   }
-
-  const bubble = document.createElement('div');
-  bubble.className = 'bubble';
-  bubble.innerHTML = formatText(text);
-  row.appendChild(bubble);
-
-  document.getElementById('messages').appendChild(row);
-  scrollToBottom();
-  return bubble;
 }
 
-function formatText(text) {
-  // Style [action] segments
+function getMyAvatarEl() {
+  const saved = localStorage.getItem('raven_avatar');
+  if (saved) {
+    const img = document.createElement('img');
+    img.src = saved;
+    img.className = 'msg-avatar';
+    return img;
+  }
+  const ph = document.createElement('div');
+  ph.className = 'msg-avatar-placeholder raven-ph';
+  ph.textContent = 'R';
+  return ph;
+}
+
+function getAdrianAvatarEl() {
+  const img = document.createElement('img');
+  img.src = ADRIAN_AVATAR;
+  img.className = 'msg-avatar';
+  img.onerror = () => {
+    const ph = document.createElement('div');
+    ph.className = 'msg-avatar-placeholder adrian-ph';
+    ph.textContent = 'AV';
+    img.replaceWith(ph);
+  };
+  return img;
+}
+
+// ── Status ──
+function setStatus(t) { document.getElementById('status-text').textContent = t; }
+
+// ── Time ──
+function now() {
+  return new Date().toLocaleString('zh-CN', {
+    year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', hour12: false
+  }).replace(/\//g, '/').replace(',', '');
+}
+function timeLabel() {
+  const d = new Date();
+  const pad = n => String(n).padStart(2, '0');
+  return `${d.getFullYear()}/${pad(d.getMonth()+1)}/${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+// ── Sentence splitter ──
+function splitToMessages(text) {
+  // Split on Chinese/Japanese/English sentence endings, preserve the punctuation
+  const parts = text.split(/(?<=[。！？\!\?])\s*|\n+/).filter(s => s.trim().length > 0);
+  // Merge very short fragments with the next one
+  const merged = [];
+  let buf = '';
+  for (const p of parts) {
+    buf = buf ? buf + ' ' + p.trim() : p.trim();
+    if (buf.length >= 8) { merged.push(buf); buf = ''; }
+  }
+  if (buf) {
+    if (merged.length) merged[merged.length - 1] += ' ' + buf;
+    else merged.push(buf);
+  }
+  return merged.length ? merged : [text];
+}
+
+// ── Render ──
+function formatBubbleText(text) {
   return text.replace(/\[([^\]]+)\]/g, '<span class="action">[$1]</span>');
 }
 
-function showTyping() {
-  const row = document.createElement('div');
-  row.className = 'msg-row adrian';
-  row.id = 'typing-row';
+function addSpacer() {
+  const s = document.createElement('div');
+  s.className = 'group-spacer';
+  document.getElementById('messages').appendChild(s);
+}
 
-  const avatar = document.createElement('div');
-  avatar.className = 'msg-avatar';
-  avatar.textContent = 'AV';
-  row.appendChild(avatar);
+function createGroup(role, timeStr) {
+  const group = document.createElement('div');
+  group.className = `msg-group ${role}`;
 
-  const bubble = document.createElement('div');
-  bubble.className = 'bubble typing-bubble';
-  bubble.innerHTML = '<span></span><span></span><span></span>';
-  row.appendChild(bubble);
+  // Avatar
+  const avatarEl = role === 'adrian' ? getAdrianAvatarEl() : getMyAvatarEl();
+  group.appendChild(avatarEl);
 
-  document.getElementById('messages').appendChild(row);
+  // Column
+  const col = document.createElement('div');
+  col.className = 'bubbles-col';
+
+  // Timestamp
+  const t = document.createElement('div');
+  t.className = 'msg-time';
+  t.textContent = timeStr;
+  col.appendChild(t);
+
+  group.appendChild(col);
+  document.getElementById('messages').appendChild(group);
+  return col;
+}
+
+function addBubble(col, text, role) {
+  const b = document.createElement('div');
+  b.className = `bubble`;
+  b.innerHTML = formatBubbleText(text);
+  col.appendChild(b);
+  scrollToBottom();
+  return b;
+}
+
+function showTypingGroup() {
+  const group = document.createElement('div');
+  group.className = 'msg-group adrian';
+  group.id = 'typing-group';
+
+  group.appendChild(getAdrianAvatarEl());
+
+  const col = document.createElement('div');
+  col.className = 'bubbles-col';
+  const t = document.createElement('div');
+  t.className = 'msg-time';
+  t.textContent = timeLabel();
+  col.appendChild(t);
+
+  const b = document.createElement('div');
+  b.className = 'bubble typing-dots';
+  b.innerHTML = '<span></span><span></span><span></span>';
+  col.appendChild(b);
+  group.appendChild(col);
+
+  document.getElementById('messages').appendChild(group);
   scrollToBottom();
 }
 
 function hideTyping() {
-  const row = document.getElementById('typing-row');
-  if (row) row.remove();
+  const el = document.getElementById('typing-group');
+  if (el) el.remove();
 }
 
 function scrollToBottom() {
@@ -458,23 +647,22 @@ async function sendMessage() {
   input.value = '';
   autoResize();
 
-  // Add timestamp to message
-  const now = new Date();
-  const timeStr = now.toLocaleString('zh-CN', { hour12: false });
-  const userContent = `[${timeStr}]\n${text}`;
+  const ts = timeLabel();
+  const userContent = `[${ts}]\n${text}`;
 
-  // Render user bubble (display only, without timestamp prefix)
-  renderBubble('raven', text);
+  // Render user message
+  addSpacer();
+  const userCol = createGroup('raven', ts);
+  addBubble(userCol, text, 'raven');
 
-  // Add to history
   history.push({ role: 'user', content: userContent });
   if (history.length > MAX_HISTORY) history = history.slice(-MAX_HISTORY);
 
-  // Show typing
   isLoading = true;
   document.getElementById('send-btn').disabled = true;
   setStatus('正在输入...');
-  showTyping();
+  addSpacer();
+  showTypingGroup();
 
   try {
     const resp = await fetch(API_URL, {
@@ -502,10 +690,28 @@ async function sendMessage() {
     const reply = data.content[0].text;
 
     hideTyping();
-    renderBubble('adrian', reply);
-
     history.push({ role: 'assistant', content: reply });
     if (history.length > MAX_HISTORY) history = history.slice(-MAX_HISTORY);
+
+    // Split and display sentence by sentence
+    const sentences = splitToMessages(reply);
+    const adrianTs = timeLabel();
+    const adrianCol = createGroup('adrian', adrianTs);
+
+    for (let i = 0; i < sentences.length; i++) {
+      if (i > 0) {
+        // Show typing dots between sentences
+        const dots = document.createElement('div');
+        dots.className = 'bubble typing-dots';
+        dots.innerHTML = '<span></span><span></span><span></span>';
+        adrianCol.appendChild(dots);
+        scrollToBottom();
+        await delay(600 + Math.random() * 600);
+        dots.remove();
+      }
+      addBubble(adrianCol, sentences[i], 'adrian');
+      if (i < sentences.length - 1) await delay(200);
+    }
 
     setStatus('在线');
   } catch (e) {
@@ -516,7 +722,9 @@ async function sendMessage() {
       resetKey();
     } else {
       setStatus('连接失败');
-      renderBubble('adrian', `[连接出了点问题。${e.message}]`);
+      addSpacer();
+      const col = createGroup('adrian', timeLabel());
+      addBubble(col, `[连接出了点问题]`, 'adrian');
       setTimeout(() => setStatus('在线'), 3000);
     }
   } finally {
@@ -525,6 +733,8 @@ async function sendMessage() {
     input.focus();
   }
 }
+
+function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
 </script>
 </body>
 </html>
