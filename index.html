@@ -558,6 +558,11 @@ function splitToMessages(text) {
 }
 
 // ── Render ──
+function stripTimestamps(text) {
+  // Remove injected timestamps like [2026/06/28 01:32] if Adrian echoes them
+  return text.replace(/\[\d{4}\/\d{2}\/\d{2}\s+\d{2}:\d{2}\]\n?/g, '').trim();
+}
+
 function formatBubbleText(text) {
   return text.replace(/\[([^\]]+)\]/g, '<span class="action">[$1]</span>');
 }
@@ -687,7 +692,7 @@ async function sendMessage() {
     }
 
     const data = await resp.json();
-    const reply = data.content[0].text;
+    const reply = stripTimestamps(data.content[0].text);
 
     hideTyping();
     history.push({ role: 'assistant', content: reply });
